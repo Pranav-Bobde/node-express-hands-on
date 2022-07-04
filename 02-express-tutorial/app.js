@@ -1,35 +1,18 @@
-const http = require("http");
-const { readFileSync } = require('fs')
+const express = require("express")
+const app = express()
 
-//get all files
-const homePage = readFileSync('./index.html') //using sync as we require it once while inititalising the server (not for every req)
+const people = require('./routes/people')
+const auth = require('./routes/auth')
 
-const server = http.createServer((req, res) => {
-  const url = req.url;
-  //home page
-  if (url === "/") {
-    res.writeHead(200, {
-      "content-type": "text/html",
-    });
-    res.write(homePage);
-    res.end();
-  }
-  //about page
-  else if (url === "/about") {
-    res.writeHead(200, {
-      "content-type": "text/html",
-    });
-    res.write("<h1>About Page</h1>");
-    res.end();
-  }
-  //404
-  else {
-    res.writeHead(404, {
-      "content-type": "text/html",
-    });
-    res.write("<h1>Page Not Found</h1>");
-    res.end();
-  }
-});
+app.use(express.static('./methods-public'))
+//parse form data
+app.use(express.urlencoded({extended: false}))
+//parse json
+app.use(express.json())
 
-server.listen(3000);
+app.use('/api/people', people)
+app.use('/login', auth)
+
+app.listen(3000, () => {
+    console.log('Server is listening on port 3000...');
+})
